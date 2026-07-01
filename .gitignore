@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Vault依存（絶対パスでローカルファイルを読むため、Vercelではビルド不可）
+/src/app/topics/nemurenai/
+/src/lib/mapMarkdown.ts
+/src/lib/topicMarkdown.ts

@@ -23,6 +23,11 @@
   --font-sans-jp: "Hiragino Sans", "Yu Gothic", "YuGothic", sans-serif;
 }
 
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

@@ -3,7 +3,7 @@ import { topics } from "@/data/topics";
 
 export default function TopicCards() {
   return (
-    <section className="grid grid-cols-1 gap-4 px-6 sm:grid-cols-2 sm:px-10 lg:grid-cols-4">
+    <section id="topics" className="grid grid-cols-1 gap-4 px-6 sm:grid-cols-2 sm:px-10 lg:grid-cols-4">
       {topics.map((topic) => (
         <a
           key={topic.no}

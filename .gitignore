@@ -41,6 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 # Vault依存（絶対パスでローカルファイルを読むため、Vercelではビルド不可）
-/src/app/topics/nemurenai/
+/src/app/topics/
 /src/lib/mapMarkdown.ts
 /src/lib/topicMarkdown.ts

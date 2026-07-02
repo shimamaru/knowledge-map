@@ -22,20 +22,20 @@ export const topics: Topic[] = [
     title: "働くのが怖い",
     description: "働くことへの不安や、違和感についての記録",
     icon: CloudIcon,
-    href: "#",
+    href: "/topics/hatarakukowai",
   },
   {
     no: "03",
     title: "人と合わない",
     description: "人間関係のしんどさや、孤独についての記録",
     icon: PersonIcon,
-    href: "#",
+    href: "/topics/hitotoawanai",
   },
   {
     no: "04",
     title: "表現したい",
     description: "表現したい気持ちや、創作についての記録",
     icon: PencilIcon,
-    href: "#",
+    href: "/topics/hyougenshitai",
   },
 ];

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import RecordCard from "@/components/RecordCard";
-import { SearchIcon } from "@/components/icons";
+import { ArrowRightIcon, SearchIcon } from "@/components/icons";
 import type { RecordItem } from "@/data/records";
 import { getAllRecords, uniqueTags } from "@/lib/records";
 
@@ -65,7 +65,14 @@ export default async function RecordsPage({ searchParams }: RecordsPageProps) {
       <Header />
       <main className="px-4 py-8 sm:px-10 sm:py-10">
         <div className="mx-auto max-w-5xl">
-          <p className="text-xs text-foreground/60">
+          <Link
+            href="/"
+            aria-label="ホームに戻る"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-foreground/40 transition-colors hover:text-foreground/70"
+          >
+            <ArrowRightIcon className="h-4 w-4 shrink-0 rotate-180" />
+          </Link>
+          <p className="mt-3 text-xs text-foreground/60">
             <Link href="/" className="hover:text-foreground">
               ホーム
             </Link>{" "}

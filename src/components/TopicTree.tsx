@@ -171,6 +171,19 @@ function groupByCategory(records: TopicRecord[], topicTitle: string): CategoryGr
   return sorted.map(([category, records]) => ({ category, records }));
 }
 
+function renderEmphasis(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    const match = part.match(/^\*\*([^*]+)\*\*$/);
+    if (!match) return part;
+    return (
+      <strong key={i} className="font-semibold text-foreground">
+        {match[1]}
+      </strong>
+    );
+  });
+}
+
 function RecordCard({ record }: { record: TopicRecord }) {
   const [detailOpen, setDetailOpen] = useState(false);
   const Icon = mediaIcons[record.media] ?? DocumentIcon;
@@ -189,7 +202,7 @@ function RecordCard({ record }: { record: TopicRecord }) {
           {record.title}
         </p>
         {record.description && (
-          <p className="mt-2 overflow-hidden text-xs leading-6 text-foreground/70 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+          <p className="mt-2 overflow-hidden text-[13px] leading-6 text-foreground/70 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
             {record.description}
           </p>
         )}
@@ -214,7 +227,9 @@ function RecordCard({ record }: { record: TopicRecord }) {
           </button>
           {detailOpen && (
             <div className="mt-3 border-l-2 border-border pl-3">
-              <p className="text-xs leading-6 text-foreground/75">{record.detail}</p>
+              <p className="text-[13px] leading-7 text-foreground/75">
+                {renderEmphasis(record.detail)}
+              </p>
             </div>
           )}
         </div>
@@ -298,7 +313,7 @@ function CategoryNode({ group }: { group: CategoryGroup }) {
         }}
       >
         <div className="px-1 pt-4">
-          <div className="grid grid-cols-1 gap-4 pb-1 sm:grid-cols-2">
+          <div className="grid grid-cols-1 items-start gap-4 pb-1 sm:grid-cols-2">
             {group.records.map((record) => (
               <RecordCard key={record.title} record={record} />
             ))}

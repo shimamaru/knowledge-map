@@ -3,7 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Keika",
-  description: "身体と心の感覚を、置き去りにしたくない人へ。違和感には、ちゃんと理由がある。言葉にして、少しずつ前に進んでいく。",
+  description:
+    "まだ言葉にならないものを、少しずつ形にする。違和感や思考を言葉にしながら、前に進むための場所です。",
 };
 
 export default function RootLayout({

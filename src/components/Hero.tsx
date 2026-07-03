@@ -8,12 +8,12 @@ export default function Hero() {
     <section className="flex flex-col items-start gap-10 px-6 py-14 text-left sm:px-10 sm:py-20 lg:flex-row lg:items-center lg:gap-10">
       <div className="min-w-0 lg:flex-1">
         <h1 className={titleClass}>
-          身体と心の感覚を、置き去りにしたくない人へ。
+          まだ言葉にならないものを、少しずつ形にする。
         </h1>
         <p className="mt-6 max-w-md text-sm leading-relaxed text-foreground/60 sm:text-base">
-          違和感には、ちゃんと理由がある。
+          違和感や思考を言葉にしながら、
           <br />
-          言葉にして、少しずつ前に進んでいく。
+          前に進むための場所です。
         </p>
       </div>
       <div className="mx-auto w-full max-w-[220px] shrink-0 sm:max-w-[280px] lg:mx-0 xl:max-w-[360px]">

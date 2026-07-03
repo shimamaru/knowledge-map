@@ -201,7 +201,7 @@ function RecordCard({ record }: { record: TopicRecord }) {
         <p className="mt-3 text-sm font-medium leading-relaxed text-foreground transition-colors group-hover:text-foreground">
           {record.title}
         </p>
-        {record.description && (
+        {record.description && !detailOpen && (
           <p className="mt-2 overflow-hidden text-[13px] leading-6 text-foreground/70 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
             {record.description}
           </p>

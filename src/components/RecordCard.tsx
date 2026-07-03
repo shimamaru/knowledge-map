@@ -27,6 +27,8 @@ function buildTagHref(tag: string, activeTag: string, preserveQuery: string): st
   return search ? `/records?${search}` : "/records";
 }
 
+const MAX_VISIBLE_TAGS = 3;
+
 export default function RecordCard({
   record,
   activeTag = "",
@@ -43,8 +45,8 @@ export default function RecordCard({
   return (
     <div className="group flex flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:border-foreground/30">
       <div>
-        <div className="flex items-center justify-between">
-          <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] uppercase tracking-wide text-foreground/45">
+        <div className="flex h-4 items-center justify-between">
+          <div className="flex min-w-0 items-center gap-1.5 text-[11px] uppercase tracking-wide text-foreground/45">
             <span>{record.media}</span>
             {record.topic && (
               <>
@@ -59,7 +61,7 @@ export default function RecordCard({
           href={record.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 block text-sm font-medium leading-relaxed text-foreground transition-colors group-hover:text-foreground"
+          className="mt-3 block min-h-[52px] overflow-hidden text-sm font-medium leading-relaxed text-foreground transition-colors [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] group-hover:text-foreground"
         >
           {record.title}
         </a>
@@ -68,7 +70,7 @@ export default function RecordCard({
             className={`mt-2 text-[13px] leading-6 text-foreground/70 ${
               detailOpen
                 ? ""
-                : "overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+                : "min-h-[48px] overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
             }`}
           >
             {record.description}
@@ -103,9 +105,9 @@ export default function RecordCard({
         </div>
       )}
 
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
-        <div className="flex flex-wrap gap-1.5">
-          {record.tags.map((tag) => {
+      <div className="mt-5 flex h-[26px] flex-nowrap items-center justify-between gap-2 border-t border-border/60 pt-3">
+        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-hidden">
+          {record.tags.slice(0, MAX_VISIBLE_TAGS).map((tag) => {
             const active = tag === activeTag;
 
             return (
@@ -113,7 +115,7 @@ export default function RecordCard({
                 key={tag}
                 href={buildTagHref(tag, activeTag, preserveQuery)}
                 aria-current={active ? "true" : undefined}
-                className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
+                className={`shrink-0 truncate rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
                   active
                     ? "border-foreground/30 bg-platinum text-foreground"
                     : "border-transparent bg-platinum text-foreground hover:border-foreground/20 hover:bg-border"
@@ -123,8 +125,13 @@ export default function RecordCard({
               </Link>
             );
           })}
+          {record.tags.length > MAX_VISIBLE_TAGS && (
+            <span className="shrink-0 rounded-full px-2.5 py-1 text-[11px] text-foreground/45">
+              +{record.tags.length - MAX_VISIBLE_TAGS}
+            </span>
+          )}
         </div>
-        <span className="text-[11px] text-foreground/40">{record.date}</span>
+        <span className="shrink-0 text-[11px] text-foreground/40">{record.date}</span>
       </div>
 
       {record.url && (

@@ -2,7 +2,9 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import RecordCard from "@/components/RecordCard";
 import { SearchIcon } from "@/components/icons";
+import type { RecordItem } from "@/data/records";
 import { getStandfmRecords } from "@/lib/standfm";
+import { readAllTopicRecords } from "@/lib/topicMarkdown";
 
 export const dynamic = "force-dynamic";
 
@@ -13,15 +15,43 @@ type RecordsPageProps = {
   }>;
 };
 
-function matchesQuery(record: { title: string; text: string }, query: string): boolean {
+function normalizeQuery(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function matchesQuery(record: RecordItem, query: string): boolean {
   if (!query) return true;
-  const target = `${record.title} ${record.text}`.toLowerCase();
-  return target.includes(query.toLowerCase());
+  const target = [
+    record.title,
+    record.text,
+    record.media,
+    record.date,
+    record.topic,
+    ...record.tags,
+  ].join(" ").toLowerCase();
+
+  return normalizeQuery(query)
+    .split(/\s+/)
+    .every((word) => target.includes(word));
+}
+
+function mergeRecords(records: RecordItem[]): RecordItem[] {
+  const seen = new Set<string>();
+  const merged: RecordItem[] = [];
+
+  for (const record of records) {
+    const key = record.url || `${record.title}-${record.date}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(record);
+  }
+
+  return merged.sort((a, b) => b.date.localeCompare(a.date));
 }
 
 const MIN_TAG_OCCURRENCE = 2;
 
-function uniqueTags(records: { tags: string[] }[]): string[] {
+function uniqueTags(records: RecordItem[]): string[] {
   const counts = new Map<string, number>();
   for (const record of records) {
     for (const tag of record.tags) {
@@ -35,21 +65,53 @@ function uniqueTags(records: { tags: string[] }[]): string[] {
     .sort((a, b) => a.localeCompare(b, "ja"));
 }
 
+function buildRecordsHref({ tag, query }: { tag?: string; query?: string }): string {
+  const params = new URLSearchParams();
+  if (tag) params.set("tag", tag);
+  if (query) params.set("q", query);
+  const search = params.toString();
+  return search ? `/records?${search}` : "/records";
+}
+
+function formatTopicRecordDate(date: string): string {
+  return date.replaceAll("-", ".");
+}
+
+function topicRecordsToRecordItems(): RecordItem[] {
+  return readAllTopicRecords().map((record) => ({
+    media: record.media,
+    title: record.title,
+    date: formatTopicRecordDate(record.date),
+    tags: record.tags,
+    url: record.url,
+    text: [record.description, record.detail].filter(Boolean).join(" "),
+    topic: record.topic,
+  }));
+}
+
 export default async function RecordsPage({ searchParams }: RecordsPageProps) {
   const params = await searchParams;
   const query = params.q?.trim() ?? "";
   const tag = params.tag?.trim() ?? "";
-  const records = await getStandfmRecords();
-  const tags = uniqueTags(records);
+  const standfmRecords = await getStandfmRecords();
+  const records = mergeRecords([...standfmRecords, ...topicRecordsToRecordItems()]);
+  const tags = uniqueTags(standfmRecords);
   const filteredRecords = records.filter(
     (record) => (!tag || record.tags.includes(tag)) && matchesQuery(record, query),
   );
+  const resultLabel = tag
+    ? `${tag} の記録`
+    : query
+      ? "検索結果"
+      : "すべての記録";
+  const clearQueryHref = buildRecordsHref({ tag });
+  const clearTagHref = buildRecordsHref({ query });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
-      <main className="px-6 py-10 sm:px-10">
-        <div className="max-w-5xl">
+      <main className="px-4 py-8 sm:px-10 sm:py-10">
+        <div className="mx-auto max-w-5xl">
           <p className="text-xs text-foreground/60">
             <Link href="/" className="hover:text-foreground">
               ホーム
@@ -58,14 +120,14 @@ export default async function RecordsPage({ searchParams }: RecordsPageProps) {
           </p>
           <h1 className="font-serif-jp mt-4 text-3xl sm:text-4xl">記録</h1>
 
-          <form action="/records" className="mt-6 flex max-w-xl items-center gap-2">
+          <form action="/records" className="mt-6 flex w-full items-center gap-2">
             {tag && <input type="hidden" name="tag" value={tag} />}
             <input
               type="search"
               name="q"
               defaultValue={query}
-              aria-label="投稿を検索"
-              placeholder="タイトルと本文を検索"
+              aria-label="記録を検索"
+              placeholder="タイトル・本文・タグを検索"
               className="h-11 min-w-0 flex-1 rounded-full border border-border bg-card px-4 text-sm outline-none transition-colors placeholder:text-foreground/35 focus:border-foreground/40"
             />
             <button
@@ -78,44 +140,78 @@ export default async function RecordsPage({ searchParams }: RecordsPageProps) {
           </form>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            {tags.map((item) => (
-              <Link
-                key={item}
-                href={`/records?tag=${encodeURIComponent(item)}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
-                className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                  item === tag
-                    ? "border-foreground/40 bg-platinum text-foreground"
-                    : "border-border bg-card text-foreground/70 hover:border-foreground/40"
-                }`}
-              >
-                {item}
-              </Link>
-            ))}
+            {tags.map((item) => {
+              const active = item === tag;
+              const href = active
+                ? buildRecordsHref({ query })
+                : buildRecordsHref({ tag: item, query });
+
+              return (
+                <Link
+                  key={item}
+                  href={href}
+                  aria-current={active ? "true" : undefined}
+                  className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                    active
+                      ? "border-foreground/40 bg-platinum text-foreground"
+                      : "border-border bg-card text-foreground/70 hover:border-foreground/40"
+                  }`}
+                >
+                  {item}
+                </Link>
+              );
+            })}
             {(tag || query) && (
-              <Link
-                href="/records"
-                className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground/60 transition-colors hover:border-foreground/40"
-              >
-                解除
-              </Link>
+              <>
+                {query && (
+                  <Link
+                    href={clearQueryHref}
+                    className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground/60 transition-colors hover:border-foreground/40"
+                  >
+                    検索解除
+                  </Link>
+                )}
+                {tag && (
+                  <Link
+                    href={clearTagHref}
+                    className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground/60 transition-colors hover:border-foreground/40"
+                  >
+                    タグ解除
+                  </Link>
+                )}
+                <Link
+                  href="/records"
+                  className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground/60 transition-colors hover:border-foreground/40"
+                >
+                  解除
+                </Link>
+              </>
             )}
           </div>
 
           <div className="mt-8 flex items-center justify-between border-b border-border pb-3">
             <h2 className="text-sm tracking-wide">
-              {tag ? `${tag} の投稿` : query ? "検索結果" : "すべての投稿"}
+              {resultLabel}
             </h2>
             <span className="text-xs text-foreground/50">{filteredRecords.length}件</span>
           </div>
 
           {filteredRecords.length > 0 ? (
-            <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-5 grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filteredRecords.map((record) => (
-                <RecordCard key={record.url} record={record} showText />
+                <RecordCard
+                  key={record.url}
+                  record={record}
+                  showText
+                  activeTag={tag}
+                  preserveQuery={query}
+                />
               ))}
             </div>
           ) : (
-            <p className="mt-6 text-sm text-foreground/60">一致する投稿がありません。</p>
+            <div className="mt-6 border border-border bg-card px-5 py-6 text-sm leading-7 text-foreground/65">
+              一致する記録がありません。検索語を短くするか、タグを外して探してみてください。
+            </div>
           )}
         </div>
       </main>

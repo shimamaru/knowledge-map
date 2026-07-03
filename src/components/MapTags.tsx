@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { RecordItem } from "@/data/records";
 
+const MIN_TAG_OCCURRENCE = 2;
+
 function getTags(records: RecordItem[]): string[] {
   const counts = new Map<string, number>();
   for (const record of records) {
@@ -8,6 +10,7 @@ function getTags(records: RecordItem[]): string[] {
   }
 
   return [...counts.entries()]
+    .filter(([, count]) => count >= MIN_TAG_OCCURRENCE)
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ja"))
     .map(([tag]) => tag);
 }

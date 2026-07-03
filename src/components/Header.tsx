@@ -7,29 +7,19 @@ export default function Header() {
       <Link href="/" className="font-serif-jp text-xl tracking-wide">
         Keika
       </Link>
-      <nav className="hidden items-center gap-6 text-sm sm:flex">
-        <Link href="/records" className="transition-colors hover:text-foreground">
-          記録
-        </Link>
-        <a href="/#topics" className="transition-colors hover:text-foreground">
-          入口
-        </a>
-        <a href="/#profile" className="transition-colors hover:text-foreground">
-          プロフィール
-        </a>
-        <span className="h-4 w-px bg-border" />
+      <nav className="hidden items-center text-sm sm:flex">
         <form action="/records" className="flex items-center gap-2">
           <input
             type="search"
             name="q"
             aria-label="投稿を検索"
-            placeholder="検索"
-            className="h-8 w-36 rounded-full border border-border bg-card px-3 text-xs outline-none transition-colors placeholder:text-foreground/35 focus:border-foreground/40"
+            placeholder="記録検索"
+            className="h-9 w-64 rounded-full border border-border bg-card px-4 text-sm outline-none transition-colors placeholder:text-foreground/35 focus:border-foreground/40 lg:w-72"
           />
           <button
             type="submit"
             aria-label="検索"
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-border transition-colors hover:border-foreground/40"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card transition-colors hover:border-foreground/40 hover:bg-platinum"
           >
             <SearchIcon className="h-4 w-4" />
           </button>

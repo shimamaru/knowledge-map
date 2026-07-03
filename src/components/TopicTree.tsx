@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { DocumentIcon } from "@/components/icons";
 import { mediaIcons } from "@/data/mediaIcons";
@@ -244,9 +245,13 @@ function RecordCard({ record }: { record: TopicRecord }) {
       <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
         <div className="flex flex-wrap gap-1.5">
           {record.tags.map((tag) => (
-            <span key={tag} className="rounded-full bg-platinum px-2 py-0.5 text-[11px] text-foreground">
+            <Link
+              key={tag}
+              href={`/records?tag=${encodeURIComponent(tag)}`}
+              className="rounded-full border border-transparent bg-platinum px-2 py-0.5 text-[11px] text-foreground transition-colors hover:border-foreground/25 hover:bg-border"
+            >
               {tag}
-            </span>
+            </Link>
           ))}
         </div>
         <span className="text-[11px] text-foreground/40">{record.date}</span>

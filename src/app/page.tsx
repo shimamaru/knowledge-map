@@ -6,8 +6,6 @@ import RecentRecords from "@/components/RecentRecords";
 import TopicCards from "@/components/TopicCards";
 import { getStandfmRecords } from "@/lib/standfm";
 
-export const dynamic = "force-dynamic";
-
 export default async function Home() {
   const records = await getStandfmRecords();
 

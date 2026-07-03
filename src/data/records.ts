@@ -5,6 +5,7 @@ export type RecordItem = {
   tags: string[];
   url: string;
   text: string;
+  topic?: string;
 };
 
 export const records: RecordItem[] = [

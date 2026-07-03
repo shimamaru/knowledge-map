@@ -17,7 +17,17 @@ export type TopicDetail = {
   records: TopicRecord[];
 };
 
+export type TopicRecordWithTopic = TopicRecord & {
+  topic: string;
+};
+
+const topicDetailCache = new Map<string, TopicDetail>();
+let allTopicRecordsCache: TopicRecordWithTopic[] | null = null;
+
 export function readTopicDetail(slug: string): TopicDetail {
+  const cached = topicDetailCache.get(slug);
+  if (cached) return cached;
+
   const dir = path.join(process.cwd(), "content", "topics", slug);
   const topicMeta = JSON.parse(
     readFileSync(path.join(dir, "_meta", "topic.json"), "utf-8")
@@ -28,5 +38,23 @@ export function readTopicDetail(slug: string): TopicDetail {
     .map((file) => JSON.parse(readFileSync(path.join(dir, file), "utf-8")) as TopicRecord)
     .sort((a, b) => b.date.localeCompare(a.date));
 
-  return { title: topicMeta.title, description: topicMeta.description, records };
+  const detail = { title: topicMeta.title, description: topicMeta.description, records };
+  topicDetailCache.set(slug, detail);
+  return detail;
+}
+
+export function readAllTopicRecords(): TopicRecordWithTopic[] {
+  if (allTopicRecordsCache) return allTopicRecordsCache;
+
+  const topicsDir = path.join(process.cwd(), "content", "topics");
+
+  allTopicRecordsCache = readdirSync(topicsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((entry) => {
+      const topic = readTopicDetail(entry.name);
+      return topic.records.map((record) => ({ ...record, topic: topic.title }));
+    })
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  return allTopicRecordsCache;
 }

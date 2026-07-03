@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "refresh:standfm": "node scripts/refresh-standfm-records.mjs",
     "lint": "eslint"
   },
   "dependencies": {

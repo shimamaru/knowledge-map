@@ -201,15 +201,28 @@ function RecordCard({ record }: { record: TopicRecord }) {
         <p className="mt-3 text-sm font-medium leading-relaxed text-foreground transition-colors group-hover:text-foreground">
           {record.title}
         </p>
-        {record.description && !detailOpen && (
-          <p className="mt-2 overflow-hidden text-[13px] leading-6 text-foreground/70 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+        {record.description && (
+          <p
+            className={`mt-2 text-[13px] leading-6 text-foreground/70 ${
+              detailOpen
+                ? ""
+                : "overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+            }`}
+          >
             {record.description}
+            {record.detail && !detailOpen && "…"}
+            {record.detail && detailOpen && (
+              <>
+                {" "}
+                {renderEmphasis(record.detail)}
+              </>
+            )}
           </p>
         )}
       </div>
 
       {record.detail && (
-        <div className="mt-4">
+        <div className="mt-3">
           <button
             type="button"
             onClick={() => setDetailOpen((v) => !v)}
@@ -223,15 +236,8 @@ function RecordCard({ record }: { record: TopicRecord }) {
                 <path d="M2 0 L8 5 L2 10 Z" fill="currentColor" />
               </svg>
             </span>
-            {detailOpen ? "要点を閉じる" : "要点を読む"}
+            {detailOpen ? "閉じる" : "続きを読む"}
           </button>
-          {detailOpen && (
-            <div className="mt-3 border-l-2 border-border pl-3">
-              <p className="text-[13px] leading-7 text-foreground/75">
-                {renderEmphasis(record.detail)}
-              </p>
-            </div>
-          )}
         </div>
       )}
 

@@ -8,10 +8,10 @@ export default function Hero() {
     <section className="flex flex-col items-start gap-10 px-6 py-14 text-left sm:px-10 sm:py-20 lg:flex-row lg:items-center lg:gap-10">
       <div className="min-w-0 lg:flex-1">
         <h1 className={titleClass}>
-          身体と心の感覚を置き去りにしないで、
+          身体と心の感覚を、置き去りにしなくていい。
         </h1>
         <h1 className={titleClass}>
-          生き方を考えていく記録。
+          そう思える記録を、少しずつ積み重ねています。
         </h1>
         <p className="mt-6 max-w-md text-sm leading-relaxed text-foreground/60 sm:text-base">
           眠れなさ、働くことへの不安、孤独、表現したい気持ち。

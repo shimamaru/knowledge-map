@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Keika",
-  description: "身体と心の感覚を置き去りにしないで、生き方を考えていく記録。",
+  description: "身体と心の感覚を、置き去りにしなくていい。そう思える記録を、少しずつ積み重ねています。",
 };
 
 export default function RootLayout({

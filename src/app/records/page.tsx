@@ -23,7 +23,8 @@ function matchesQuery(record: RecordItem, query: string): boolean {
   if (!query) return true;
   const target = [
     record.title,
-    record.text,
+    record.description,
+    record.detail,
     record.media,
     record.date,
     record.topic,
@@ -77,10 +78,6 @@ function formatTopicRecordDate(date: string): string {
   return date.replaceAll("-", ".");
 }
 
-function stripMarkdown(text: string): string {
-  return text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\s+/g, " ").trim();
-}
-
 function topicRecordsToRecordItems(): RecordItem[] {
   return readAllTopicRecords().map((record) => ({
     media: record.media,
@@ -88,7 +85,8 @@ function topicRecordsToRecordItems(): RecordItem[] {
     date: formatTopicRecordDate(record.date),
     tags: record.tags,
     url: record.url,
-    text: [record.description, stripMarkdown(record.detail)].filter(Boolean).join(" "),
+    description: record.description,
+    detail: record.detail,
     topic: record.topic,
   }));
 }
@@ -206,7 +204,6 @@ export default async function RecordsPage({ searchParams }: RecordsPageProps) {
                 <RecordCard
                   key={record.url}
                   record={record}
-                  showText
                   activeTag={tag}
                   preserveQuery={query}
                 />

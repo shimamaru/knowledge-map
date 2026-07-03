@@ -1,61 +1,109 @@
+"use client";
+
 import Link from "next/link";
-import { WaveformIcon } from "@/components/icons";
+import { useState } from "react";
+import { DocumentIcon } from "@/components/icons";
+import { mediaIcons } from "@/data/mediaIcons";
 import type { RecordItem } from "@/data/records";
 
-function excerpt(text: string, maxLength = 120): string {
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength)}...`;
+function renderEmphasis(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    const match = part.match(/^\*\*([^*]+)\*\*$/);
+    if (!match) return part;
+    return (
+      <strong key={i} className="font-semibold text-foreground">
+        {match[1]}
+      </strong>
+    );
+  });
+}
+
+function buildTagHref(tag: string, activeTag: string, preserveQuery: string): string {
+  const params = new URLSearchParams();
+  if (tag !== activeTag) params.set("tag", tag);
+  if (preserveQuery) params.set("q", preserveQuery);
+  const search = params.toString();
+  return search ? `/records?${search}` : "/records";
 }
 
 export default function RecordCard({
   record,
-  showText = false,
   activeTag = "",
   preserveQuery = "",
 }: {
   record: RecordItem;
-  showText?: boolean;
   activeTag?: string;
   preserveQuery?: string;
 }) {
-  const buildTagHref = (tag: string) => {
-    const params = new URLSearchParams();
-    if (tag !== activeTag) params.set("tag", tag);
-    if (preserveQuery) params.set("q", preserveQuery);
-    const search = params.toString();
-    return search ? `/records?${search}` : "/records";
-  };
+  const [detailOpen, setDetailOpen] = useState(false);
+  const Icon = mediaIcons[record.media] ?? DocumentIcon;
+  const linkLabel = record.media === "stand.fm" ? "stand.fmで聴く" : `${record.media}で開く`;
 
   return (
-    <article className="flex flex-col justify-between rounded-2xl border border-border bg-card p-5 transition-colors hover:border-foreground/40">
+    <div className="group flex flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:border-foreground/30">
       <div>
-        <div className="flex items-start justify-between">
-          <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-xs text-foreground/55">
+        <div className="flex items-center justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] uppercase tracking-wide text-foreground/45">
             <span>{record.media}</span>
             {record.topic && (
               <>
-                <span className="text-foreground/25">/</span>
-                <span className="truncate">{record.topic}</span>
+                <span className="normal-case text-foreground/25">/</span>
+                <span className="truncate normal-case">{record.topic}</span>
               </>
             )}
           </div>
-          <WaveformIcon className="h-5 w-5 shrink-0 text-foreground/60" />
+          <Icon className="h-4 w-4 shrink-0 text-foreground/40 transition-colors group-hover:text-foreground/70" />
         </div>
         <a
           href={record.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 block text-[15px] font-medium leading-relaxed transition-colors hover:text-foreground/70"
+          className="mt-3 block text-sm font-medium leading-relaxed text-foreground transition-colors group-hover:text-foreground"
         >
           {record.title}
         </a>
-        {showText && record.text && (
-          <p className="mt-2 text-[13px] leading-6 text-foreground/65">
-            {excerpt(record.text)}
+        {record.description && (
+          <p
+            className={`mt-2 text-[13px] leading-6 text-foreground/70 ${
+              detailOpen
+                ? ""
+                : "overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+            }`}
+          >
+            {record.description}
+            {record.detail && !detailOpen && "…"}
+            {record.detail && detailOpen && (
+              <>
+                {" "}
+                {renderEmphasis(record.detail)}
+              </>
+            )}
           </p>
         )}
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+
+      {record.detail && (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setDetailOpen((v) => !v)}
+            className="inline-flex items-center gap-1 rounded-sm text-[11px] font-semibold text-foreground/55 transition-colors hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20"
+          >
+            <span
+              className="inline-flex h-3 w-3 items-center justify-center transition-transform"
+              style={{ transform: detailOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+            >
+              <svg viewBox="0 0 10 10" className="h-2 w-2">
+                <path d="M2 0 L8 5 L2 10 Z" fill="currentColor" />
+              </svg>
+            </span>
+            {detailOpen ? "閉じる" : "続きを読む"}
+          </button>
+        </div>
+      )}
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
         <div className="flex flex-wrap gap-1.5">
           {record.tags.map((tag) => {
             const active = tag === activeTag;
@@ -63,7 +111,7 @@ export default function RecordCard({
             return (
               <Link
                 key={tag}
-                href={buildTagHref(tag)}
+                href={buildTagHref(tag, activeTag, preserveQuery)}
                 aria-current={active ? "true" : undefined}
                 className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
                   active
@@ -76,8 +124,24 @@ export default function RecordCard({
             );
           })}
         </div>
-        <span className="text-xs text-foreground/60">{record.date}</span>
+        <span className="text-[11px] text-foreground/40">{record.date}</span>
       </div>
-    </article>
+
+      {record.url && (
+        <a
+          href={record.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-semibold text-foreground/70 transition-colors hover:border-foreground/30 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20"
+        >
+          <span className="inline-flex h-3 w-3 items-center justify-center">
+            <svg viewBox="0 0 10 10" className="h-2 w-2">
+              <path d="M2 0 L8 5 L2 10 Z" fill="currentColor" />
+            </svg>
+          </span>
+          {linkLabel}
+        </a>
+      )}
+    </div>
   );
 }

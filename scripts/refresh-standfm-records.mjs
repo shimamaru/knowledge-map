@@ -148,18 +148,27 @@ async function fetchHtml(url) {
   return response.text();
 }
 
+function splitSummaryAndDetail(text) {
+  const sentences = text.split(/(?<=[。])/).map((s) => s.trim()).filter(Boolean);
+  const summary = sentences.slice(0, 2).join("");
+  return { summary: summary || text, detail: text };
+}
+
 async function buildRecord(summary) {
-  const description = extractEpisodeDescription(
+  const rawDescription = extractEpisodeDescription(
     await fetchHtml(`https://stand.fm/episodes/${summary.episodeId}`),
   );
+  const cleaned = cleanText(rawDescription);
+  const { summary: shortSummary, detail } = splitSummaryAndDetail(cleaned);
 
   return {
     media: "stand.fm",
     title: summary.title,
     date: formatDate(summary.publishedAt),
-    tags: buildTags(summary.title, description),
+    tags: buildTags(summary.title, cleaned),
     url: `https://stand.fm/episodes/${summary.episodeId}`,
-    text: cleanText(description),
+    description: shortSummary,
+    detail,
   };
 }
 

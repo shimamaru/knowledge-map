@@ -19,7 +19,8 @@ function isRecordItem(value: unknown): value is RecordItem {
     Array.isArray(record.tags) &&
     record.tags.every((tag) => typeof tag === "string") &&
     typeof record.url === "string" &&
-    typeof record.text === "string"
+    typeof record.description === "string" &&
+    typeof record.detail === "string"
   );
 }
 

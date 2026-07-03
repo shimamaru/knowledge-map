@@ -4,10 +4,10 @@ import MapTags from "@/components/MapTags";
 import ProfileSection from "@/components/ProfileSection";
 import RecentRecords from "@/components/RecentRecords";
 import TopicCards from "@/components/TopicCards";
-import { getStandfmRecords } from "@/lib/standfm";
+import { getAllRecords } from "@/lib/records";
 
 export default async function Home() {
-  const records = await getStandfmRecords();
+  const records = await getAllRecords();
 
   return (
     <div className="min-h-screen bg-background text-foreground">

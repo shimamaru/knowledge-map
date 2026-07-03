@@ -6,6 +6,9 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+const pageDescription =
+  "表現したい気持ちは、技術やセンスだけでなく、その人の弱さや履歴、生活のリアルな痛みが言葉や声に滲み出ることから生まれる。土地の気配が作品を作ること、劣等感を少し離れた場所から見られる形にすること、ボイスメモとAIで思考を再利用できる形に整えること。表現することと生きることのつながりを見つめていく記録。";
+
 export default function HyougenShitaiTopicPage() {
   const topic = readTopicDetail("hyougenshitai");
 
@@ -27,8 +30,8 @@ export default function HyougenShitaiTopicPage() {
           / {topic.title}
         </p>
         <h1 className="font-serif-jp mt-4 text-3xl sm:text-4xl">{topic.title}</h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-foreground/60">
-          {topic.description}
+        <p className="mt-4 max-w-2xl border-l-2 border-foreground/20 pl-4 text-[15px] leading-7 text-foreground/75">
+          {pageDescription}
         </p>
 
         <TopicTree records={topic.records} topicTitle={topic.title} />

@@ -6,6 +6,9 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+const pageDescription =
+  "働くのが怖いのは、能力や気合いの問題ではなく、いていいと思える場所や関係性がまだ見つかっていないだけかもしれない。就活の自己分析や占いで見えてきた自分の輪郭、面接に落ち続けた経験から気づいた「働く前に必要なもの」を、少しずつ言葉にしていく記録。";
+
 export default function HatarakuKowaiTopicPage() {
   const topic = readTopicDetail("hatarakukowai");
 
@@ -27,8 +30,8 @@ export default function HatarakuKowaiTopicPage() {
           / {topic.title}
         </p>
         <h1 className="font-serif-jp mt-4 text-3xl sm:text-4xl">{topic.title}</h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-foreground/60">
-          {topic.description}
+        <p className="mt-4 max-w-2xl border-l-2 border-foreground/20 pl-4 text-[15px] leading-7 text-foreground/75">
+          {pageDescription}
         </p>
 
         <TopicTree records={topic.records} topicTitle={topic.title} />

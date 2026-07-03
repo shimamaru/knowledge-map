@@ -77,6 +77,10 @@ function formatTopicRecordDate(date: string): string {
   return date.replaceAll("-", ".");
 }
 
+function stripMarkdown(text: string): string {
+  return text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\s+/g, " ").trim();
+}
+
 function topicRecordsToRecordItems(): RecordItem[] {
   return readAllTopicRecords().map((record) => ({
     media: record.media,
@@ -84,7 +88,7 @@ function topicRecordsToRecordItems(): RecordItem[] {
     date: formatTopicRecordDate(record.date),
     tags: record.tags,
     url: record.url,
-    text: [record.description, record.detail].filter(Boolean).join(" "),
+    text: [record.description, stripMarkdown(record.detail)].filter(Boolean).join(" "),
     topic: record.topic,
   }));
 }
@@ -95,7 +99,7 @@ export default async function RecordsPage({ searchParams }: RecordsPageProps) {
   const tag = params.tag?.trim() ?? "";
   const standfmRecords = await getStandfmRecords();
   const records = mergeRecords([...standfmRecords, ...topicRecordsToRecordItems()]);
-  const tags = uniqueTags(standfmRecords);
+  const tags = uniqueTags(records);
   const filteredRecords = records.filter(
     (record) => (!tag || record.tags.includes(tag)) && matchesQuery(record, query),
   );

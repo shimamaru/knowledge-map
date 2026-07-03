@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const STANDFM_SEED_EPISODE_URL = "https://stand.fm/episodes/6a3fd574ac08572069cbff13";
@@ -172,6 +172,19 @@ async function buildRecord(summary) {
   };
 }
 
+async function readExistingRecords() {
+  try {
+    const raw = await readFile(OUTPUT_PATH, "utf-8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+const existingRecords = await readExistingRecords();
+const existingUrls = new Set(existingRecords.map((record) => record.url));
+
 const seedHtml = await fetchHtml(STANDFM_SEED_EPISODE_URL);
 const episodes = parseLatestEpisodes(seedHtml, LIMIT);
 
@@ -179,8 +192,23 @@ if (episodes.length === 0) {
   throw new Error("No stand.fm episodes found.");
 }
 
-const records = await Promise.all(episodes.map((episode) => buildRecord(episode)));
-await mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
-await writeFile(OUTPUT_PATH, `${JSON.stringify(records, null, 2)}\n`);
+const newEpisodes = episodes.filter(
+  (episode) => !existingUrls.has(`https://stand.fm/episodes/${episode.episodeId}`),
+);
 
-console.log(`Wrote ${records.length} records to ${OUTPUT_PATH}`);
+if (newEpisodes.length === 0) {
+  console.log("No new stand.fm episodes found. Existing records left untouched.");
+  process.exit(0);
+}
+
+const newRecords = await Promise.all(newEpisodes.map((episode) => buildRecord(episode)));
+const mergedRecords = [...newRecords, ...existingRecords].sort((a, b) =>
+  b.date.localeCompare(a.date),
+);
+
+await mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
+await writeFile(OUTPUT_PATH, `${JSON.stringify(mergedRecords, null, 2)}\n`);
+
+console.log(
+  `Added ${newRecords.length} new record(s), kept ${existingRecords.length} existing record(s) unchanged.`,
+);

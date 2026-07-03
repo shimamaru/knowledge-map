@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync } from "fs";
 import path from "path";
 
 export type TopicRecord = {
@@ -17,77 +17,16 @@ export type TopicDetail = {
   records: TopicRecord[];
 };
 
-function parseFields(lines: string[]): Omit<TopicRecord, "title"> {
-  const fields: Record<string, string> = {};
-  let currentKey: string | null = null;
-
-  for (const line of lines) {
-    const indentedContinuation = line.match(/^\s{2,}(.*)$/);
-    if (currentKey && indentedContinuation) {
-      fields[currentKey] += ` ${indentedContinuation[1].trim()}`;
-      continue;
-    }
-
-    const match = line.match(/^(\w+):\s*(.*)$/);
-    if (!match) {
-      currentKey = null;
-      continue;
-    }
-    fields[match[1]] = match[2].trim();
-    currentKey = match[1];
-  }
-
-  return {
-    media: fields.media ?? "",
-    date: fields.date ?? "",
-    tags: fields.tags ? fields.tags.split(",").map((t) => t.trim()) : [],
-    url: fields.url ?? "",
-    description: fields.description ?? "",
-    detail: fields.detail ?? "",
-  };
-}
-
-export function parseTopicMarkdown(markdown: string): TopicDetail {
-  const lines = markdown.split("\n");
-
-  let title = "";
-  let description = "";
-  const records: TopicRecord[] = [];
-
-  let currentTitle: string | null = null;
-  let currentLines: string[] = [];
-
-  const flush = () => {
-    if (currentTitle !== null) {
-      records.push({ title: currentTitle, ...parseFields(currentLines) });
-    }
-    currentTitle = null;
-    currentLines = [];
-  };
-
-  for (const line of lines) {
-    if (line.startsWith("## ")) {
-      flush();
-      currentTitle = line.slice(3).trim();
-      continue;
-    }
-    if (line.startsWith("# ")) {
-      title = line.slice(2).trim();
-      continue;
-    }
-    if (currentTitle !== null) {
-      if (line.trim() !== "") currentLines.push(line);
-    } else if (line.trim() !== "" && !description) {
-      description = line.trim();
-    }
-  }
-  flush();
-
-  return { title, description, records };
-}
-
 export function readTopicDetail(slug: string): TopicDetail {
-  const filePath = path.join(process.cwd(), "content", "topics", `${slug}.md`);
-  const markdown = readFileSync(filePath, "utf-8");
-  return parseTopicMarkdown(markdown);
+  const dir = path.join(process.cwd(), "content", "topics", slug);
+  const topicMeta = JSON.parse(
+    readFileSync(path.join(dir, "_meta", "topic.json"), "utf-8")
+  ) as { title: string; description: string };
+
+  const recordFiles = readdirSync(dir).filter((file) => file.endsWith(".json"));
+  const records = recordFiles
+    .map((file) => JSON.parse(readFileSync(path.join(dir, file), "utf-8")) as TopicRecord)
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  return { title: topicMeta.title, description: topicMeta.description, records };
 }

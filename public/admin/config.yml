@@ -1,0 +1,90 @@
+backend:
+  name: github
+  repo: shimamaru/knowledge-map
+  branch: main
+  base_url: https://knowledge-map-teal.vercel.app
+  auth_endpoint: api/auth
+
+media_folder: public/uploads
+public_folder: /uploads
+
+collections:
+  - name: topics_meta
+    label: トピック（見出し・説明）
+    label_singular: トピック
+    files:
+      - name: nemurenai
+        label: 眠れない
+        file: content/topics/nemurenai/_meta/topic.json
+        fields:
+          - { label: "タイトル", name: "title", widget: "string" }
+          - { label: "説明", name: "description", widget: "text" }
+      - name: hatarakukowai
+        label: 働くのが怖い
+        file: content/topics/hatarakukowai/_meta/topic.json
+        fields:
+          - { label: "タイトル", name: "title", widget: "string" }
+          - { label: "説明", name: "description", widget: "text" }
+      - name: hitotoawanai
+        label: 人と合わない
+        file: content/topics/hitotoawanai/_meta/topic.json
+        fields:
+          - { label: "タイトル", name: "title", widget: "string" }
+          - { label: "説明", name: "description", widget: "text" }
+      - name: hyougenshitai
+        label: 表現したい
+        file: content/topics/hyougenshitai/_meta/topic.json
+        fields:
+          - { label: "タイトル", name: "title", widget: "string" }
+          - { label: "説明", name: "description", widget: "text" }
+
+  - name: records_nemurenai
+    label: 記録 - 眠れない
+    label_singular: 記録
+    folder: content/topics/nemurenai
+    identifier_field: title
+    extension: json
+    format: json
+    create: true
+    fields: &record_fields
+      - { label: "タイトル", name: "title", widget: "string" }
+      - label: "メディア"
+        name: "media"
+        widget: "select"
+        options: ["stand.fm"]
+        default: "stand.fm"
+      - { label: "日付", name: "date", widget: "date", format: "YYYY-MM-DD" }
+      - { label: "タグ", name: "tags", widget: "list" }
+      - { label: "URL", name: "url", widget: "string" }
+      - { label: "要約(description)", name: "description", widget: "text" }
+      - { label: "本文(detail)", name: "detail", widget: "text", required: false, hint: "**text** で太字になります" }
+
+  - name: records_hatarakukowai
+    label: 記録 - 働くのが怖い
+    label_singular: 記録
+    folder: content/topics/hatarakukowai
+    identifier_field: title
+    extension: json
+    format: json
+    create: true
+    fields: *record_fields
+
+  - name: records_hitotoawanai
+    label: 記録 - 人と合わない
+    label_singular: 記録
+    folder: content/topics/hitotoawanai
+    identifier_field: title
+    extension: json
+    format: json
+    create: true
+    fields: *record_fields
+
+  - name: records_hyougenshitai
+    label: 記録 - 表現したい
+    label_singular: 記録
+    folder: content/topics/hyougenshitai
+    identifier_field: title
+    extension: json
+    format: json
+    create: true
+    fields: *record_fields

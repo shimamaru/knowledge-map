@@ -11,10 +11,10 @@ export default function Header() {
         <Link href="/records" className="transition-colors hover:text-foreground">
           記録
         </Link>
-        <a href="#topics" className="transition-colors hover:text-foreground">
+        <a href="/#topics" className="transition-colors hover:text-foreground">
           入口
         </a>
-        <a href="#profile" className="transition-colors hover:text-foreground">
+        <a href="/#profile" className="transition-colors hover:text-foreground">
           プロフィール
         </a>
         <span className="h-4 w-px bg-border" />

@@ -1,4 +1,5 @@
 import { readFileSync } from "fs";
+import path from "path";
 
 export type TopicRecord = {
   title: string;
@@ -86,7 +87,7 @@ export function parseTopicMarkdown(markdown: string): TopicDetail {
 }
 
 export function readTopicDetail(slug: string): TopicDetail {
-  const path = `/Users/shimataniyu/dev/My-vault/zettelkasten/_system/topics/${slug}.md`;
-  const markdown = readFileSync(path, "utf-8");
+  const filePath = path.join(process.cwd(), "content", "topics", `${slug}.md`);
+  const markdown = readFileSync(filePath, "utf-8");
   return parseTopicMarkdown(markdown);
 }

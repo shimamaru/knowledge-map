@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Keika",
   description:
-    "まだ言葉にならないものを、少しずつ形にする。違和感や思考を言葉にしながら、前に進むための場所です。",
+    "まだ言葉にならないものを、少しずつ形にする。言葉にすることで、自分が楽になる。その記録が、誰かの手がかりにもなる。そんなサイトを目指しています。",
 };
 
 export default function RootLayout({

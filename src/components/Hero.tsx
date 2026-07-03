@@ -11,9 +11,11 @@ export default function Hero() {
           まだ言葉にならないものを、少しずつ形にする。
         </h1>
         <p className="mt-6 max-w-md text-sm leading-relaxed text-foreground/60 sm:text-base">
-          違和感や思考を言葉にしながら、
+          言葉にすることで、自分が楽になる。
           <br />
-          前に進むための場所です。
+          その記録が、誰かの手がかりにもなる。
+          <br />
+          そんなサイトを目指しています。
         </p>
       </div>
       <div className="mx-auto w-full max-w-[220px] shrink-0 sm:max-w-[280px] lg:mx-0 xl:max-w-[360px]">

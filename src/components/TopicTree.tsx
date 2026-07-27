@@ -36,30 +36,30 @@ const topicCategoryDefinitions: Record<string, CategoryDefinition[]> = {
   "眠れない": [
     {
       category: "血糖値コントロール",
-      description: "食事とタンパク質の摂り方で、日中のだるさと過緊張を減らす",
+      description: "食事とタンパク質の摂り方で、日中のだるさを減らす",
       summary:
-        "血糖値が乱高下すると、交感神経が刺激されて体が緊張しやすくなり、日中のだるさや眠気にもつながる。糖質だけを先に摂るのではなく、タンパク質を先に・こまめに入れることで血糖値の波を穏やかにし、過緊張そのものを落ち着けていくアプローチ。",
+        "血糖値が上下しやすいと、日中のだるさや眠気にもつながりやすいと言われる。糖質だけを先に摂るのではなく、タンパク質を先に・こまめに入れることで血糖値の波を穏やかにしていくアプローチ。",
       match: (record) => includesAny(record, ["不眠症", "血糖値", "だるさ", "食事"]),
     },
     {
       category: "ボディワーク",
       description: "太極拳や経絡など、身体から力を抜くアプローチ",
       summary:
-        "頭で「リラックスしよう」と考えるだけでは、こわばった体は緩まない。太極拳の脱力や経絡・アナトミーラインを通して身体の状態を読むことで、意志の力ではなく体の感覚から過緊張をほどいていく方向。",
+        "頭で「リラックスしよう」と考えるだけでは、こわばった体はなかなか緩まない。太極拳の脱力や経絡・アナトミーラインを通して身体の状態を読むことで、体の感覚からゆるめていく方向。",
       match: (record) => includesAny(record, ["太極拳", "力を抜く", "経絡", "アナトミー", "身体を読む", "本が読めない"]),
     },
     {
       category: "人との交流",
-      description: "愚痴や対話で感情を外に出し、抱え込んだ緊張をほどく",
+      description: "愚痴や対話で気持ちを外に出し、力みをほどく",
       summary:
-        "抑え込んだ感情は、そのまま体の緊張として残ってしまう。一人で我慢せず、愚痴や対話として外に出すことで、感情由来の過緊張を手放していくアプローチ。",
+        "抱え込んだ気持ちは、体の力みとして残ることがある。一人で我慢せず、愚痴や対話として外に出すことで、少しずつ肩の力を抜いていくアプローチ。",
       match: (record) => includesAny(record, ["愚痴"]),
     },
     {
       category: "刺激から離れる",
-      description: "スマホ・通知・SNSとの距離を取り、過覚醒を落とす",
+      description: "スマホ・通知・SNSとの距離を取り、頭を休ませる",
       summary:
-        "通知やSNSは、意識していなくても脳を常に「反応する状態」に置き、過覚醒を助長する。物理的にスマホや刺激から距離を取ることで、脳と神経を休むモードに戻していくアプローチ。",
+        "通知やSNSは、気づかないうちに頭を働かせ続けているもの。物理的にスマホや刺激から距離を取ることで、頭と体を休むモードに戻していくアプローチ。",
       match: (record) => includesAny(record, ["キャンプ", "デジタル", "スマホ", "通知", "SNS"]),
     },
   ],
@@ -182,18 +182,34 @@ function toRecordItem(record: TopicRecord) {
   };
 }
 
-function CategoryNode({ group }: { group: CategoryGroup }) {
-  const [open, setOpen] = useState(false);
+function CategoryNode({
+  group,
+  defaultExpanded,
+  showGuideLabels,
+  compactRecords,
+  showExternalLink,
+}: {
+  group: CategoryGroup;
+  defaultExpanded: boolean;
+  showGuideLabels: boolean;
+  compactRecords: boolean;
+  showExternalLink: boolean;
+}) {
+  const [open, setOpen] = useState(defaultExpanded);
   const isOther = group.category === OTHER_CATEGORY;
 
   return (
-    <div>
+    <div className={showGuideLabels ? "border-t border-border pt-6 first:border-t-0 first:pt-0" : ""}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex w-full items-center gap-3 rounded-xl px-4 py-4 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 ${
-          open ? "bg-platinum" : "bg-platinum/60 hover:bg-platinum"
-        }`}
+        className={
+          showGuideLabels
+            ? "flex w-full items-center gap-3 rounded-lg border border-border bg-card/45 px-4 py-4 text-left transition-colors hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20"
+            : `flex w-full items-center gap-3 rounded-xl px-4 py-4 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 ${
+                open ? "bg-platinum" : "bg-platinum/60 hover:bg-platinum"
+              }`
+        }
       >
         <span
           className="flex h-4 w-4 shrink-0 items-center justify-center text-foreground/40 transition-transform"
@@ -204,6 +220,11 @@ function CategoryNode({ group }: { group: CategoryGroup }) {
           </svg>
         </span>
         <span className="min-w-0 flex-1">
+          {showGuideLabels && (
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-foreground/45">
+              テーマ
+            </span>
+          )}
           <span className="block text-[15px] font-semibold leading-snug text-foreground">
             {group.category}
           </span>
@@ -226,13 +247,29 @@ function CategoryNode({ group }: { group: CategoryGroup }) {
       <div
         className="overflow-hidden transition-[max-height] duration-300 ease-out"
         style={{
-          maxHeight: open ? `${group.records.length * 600 + 40}px` : "0px",
+          maxHeight: open ? `${group.records.length * 620 + 180}px` : "0px",
         }}
       >
-        <div className="px-1 pt-4">
+        <div className={showGuideLabels ? "pt-4" : "px-1 pt-4"}>
+          {showGuideLabels && group.summary && (
+            <p className="mb-5 max-w-2xl border-l border-border pl-4 text-xs leading-6 text-foreground/65">
+              {group.summary}
+            </p>
+          )}
+          {showGuideLabels && (
+            <p className="mb-3 flex items-center gap-2 text-[10px] font-semibold text-foreground/45">
+              <span className="h-px w-4 bg-border" />
+              関連する音声
+            </p>
+          )}
           <div className="grid grid-cols-1 items-start gap-4 pb-1 sm:grid-cols-2">
             {group.records.map((record) => (
-              <RecordCard key={record.title} record={toRecordItem(record)} />
+              <RecordCard
+                key={record.title}
+                record={toRecordItem(record)}
+                allowDetailToggle={!compactRecords}
+                showExternalLink={showExternalLink}
+              />
             ))}
           </div>
         </div>
@@ -244,17 +281,32 @@ function CategoryNode({ group }: { group: CategoryGroup }) {
 export default function TopicTree({
   records,
   topicTitle,
+  defaultExpanded = false,
+  showGuideLabels = false,
+  compactRecords = false,
+  showExternalLink = true,
 }: {
   records: TopicRecord[];
   topicTitle: string;
+  defaultExpanded?: boolean;
+  showGuideLabels?: boolean;
+  compactRecords?: boolean;
+  showExternalLink?: boolean;
 }) {
   const groups = groupByCategory(records, topicTitle);
 
   return (
-    <div className="mt-10">
-      <div className="space-y-3">
+    <div className={showGuideLabels ? "mt-0" : "mt-10"}>
+      <div className={showGuideLabels ? "space-y-7" : "space-y-3"}>
         {groups.map((group) => (
-          <CategoryNode key={group.category} group={group} />
+          <CategoryNode
+            key={group.category}
+            group={group}
+            defaultExpanded={defaultExpanded}
+            showGuideLabels={showGuideLabels}
+            compactRecords={compactRecords}
+            showExternalLink={showExternalLink}
+          />
         ))}
       </div>
     </div>

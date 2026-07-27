@@ -6,11 +6,13 @@
   --linen: #ecebe4;
   --platinum: #eef0f2;
   --ghost: #fafaff;
+  --clay: #8a7a63;
 
   --background: var(--linen);
   --card: var(--ghost);
   --foreground: var(--carbon);
   --border: var(--alabaster);
+  --accent: #8a7a63;
 }
 
 @theme inline {
@@ -19,6 +21,7 @@
   --color-platinum: var(--platinum);
   --color-foreground: var(--foreground);
   --color-border: var(--border);
+  --color-accent: var(--accent);
   --font-serif-jp: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", serif;
   --font-sans-jp: "Hiragino Sans", "Yu Gothic", "YuGothic", sans-serif;
 }

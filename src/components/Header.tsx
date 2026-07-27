@@ -5,7 +5,7 @@ export default function Header() {
   return (
     <header className="flex items-center justify-between border-b border-border px-6 py-5 sm:px-10">
       <Link href="/" className="font-serif-jp text-xl tracking-wide">
-        Keika
+        Simu
       </Link>
       <nav className="hidden items-center text-sm sm:flex">
         <form action="/records" className="flex items-center gap-2">

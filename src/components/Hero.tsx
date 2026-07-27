@@ -8,14 +8,14 @@ export default function Hero() {
     <section className="flex flex-col items-start gap-10 px-6 py-14 text-left sm:px-10 sm:py-20 lg:flex-row lg:items-center lg:gap-10">
       <div className="min-w-0 lg:flex-1">
         <h1 className={titleClass}>
-          まだ言葉にならないものを、少しずつ形にする。
+          書いたメモが、埋もれずに使える場所へ。
         </h1>
         <p className="mt-6 max-w-md text-sm leading-relaxed text-foreground/60 sm:text-base">
-          言葉にすることで、自分が楽になる。
+          Obsidianは難しいツールだと思われがちだけど、
           <br />
-          その記録が、誰かの手がかりにもなる。
+          はじめは分類もタグ付けもしなくていい。
           <br />
-          そんなサイトを目指しています。
+          初心者が迷わず始められる使い方を記録しています。
         </p>
       </div>
       <div className="mx-auto w-full max-w-[220px] shrink-0 sm:max-w-[280px] lg:mx-0 xl:max-w-[360px]">

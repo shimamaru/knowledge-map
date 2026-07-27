@@ -33,12 +33,17 @@ export default function RecordCard({
   record,
   activeTag = "",
   preserveQuery = "",
+  allowDetailToggle = true,
+  showExternalLink = true,
 }: {
   record: RecordItem;
   activeTag?: string;
   preserveQuery?: string;
+  allowDetailToggle?: boolean;
+  showExternalLink?: boolean;
 }) {
   const [detailOpen, setDetailOpen] = useState(false);
+  const canToggleDetail = allowDetailToggle && Boolean(record.detail);
   const Icon = mediaIcons[record.media] ?? DocumentIcon;
   const linkLabel = record.media === "stand.fm" ? "stand.fmで聴く" : `${record.media}で開く`;
 
@@ -68,14 +73,14 @@ export default function RecordCard({
         {record.description && (
           <p
             className={`mt-2 text-[13px] leading-6 text-foreground/70 ${
-              detailOpen
+              detailOpen && canToggleDetail
                 ? ""
                 : "min-h-[48px] overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
             }`}
           >
             {record.description}
-            {record.detail && !detailOpen && "…"}
-            {record.detail && detailOpen && (
+            {record.detail && (!detailOpen || !canToggleDetail) && "…"}
+            {record.detail && detailOpen && canToggleDetail && (
               <>
                 {" "}
                 {renderEmphasis(record.detail)}
@@ -85,7 +90,7 @@ export default function RecordCard({
         )}
       </div>
 
-      {record.detail && (
+      {canToggleDetail && (
         <div className="mt-3">
           <button
             type="button"
@@ -134,7 +139,7 @@ export default function RecordCard({
         <span className="shrink-0 text-[11px] text-foreground/40">{record.date}</span>
       </div>
 
-      {record.url && (
+      {showExternalLink && record.url && (
         <a
           href={record.url}
           target="_blank"

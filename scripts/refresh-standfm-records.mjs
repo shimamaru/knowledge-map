@@ -2,10 +2,35 @@ import { Buffer } from "node:buffer";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const STANDFM_SEED_EPISODE_URL = "https://stand.fm/episodes/6a3fd574ac08572069cbff13";
+const STANDFM_GRAPHQL_URL = "https://stand.fm/api/graphql";
 const STANDFM_CHANNEL_ID = "6a1eeedd6eae39fcf566922c";
 const OUTPUT_PATH = path.join(process.cwd(), "content", "standfm-records.json");
-const LIMIT = Number.parseInt(process.argv[2] ?? "9", 10);
+// 遡って取得するエピソード数の上限（全件欲しいので大きめの値をデフォルトにする）
+const LIMIT = Number.parseInt(process.argv[2] ?? "500", 10);
+const PAGE_SIZE = 20;
+
+const EPISODES_QUERY = `
+  query ChannelEpisodes($id: ID!, $first: Int!, $after: String) {
+    node(id: $id) {
+      __typename
+      ... on Channel {
+        episodes(first: $first, after: $after) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          edges {
+            node {
+              episodeId
+              title
+              publishedAt
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 
 const TAG_ALIASES = {
   standfm: null,
@@ -102,36 +127,55 @@ function buildTags(title, rawText) {
   return uniqueTags.length > 0 ? uniqueTags.slice(0, 6) : ["自己理解"];
 }
 
-function parseLatestEpisodes(html, limit) {
-  const match = html.match(/window\.__SERVER_RELAY_STATE__ = (\{[\s\S]*?\})<\/script>/);
-  if (!match) return [];
+async function fetchEpisodesPage(after) {
+  const response = await fetch(STANDFM_GRAPHQL_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      query: EPISODES_QUERY,
+      variables: {
+        id: channelRef(STANDFM_CHANNEL_ID),
+        first: PAGE_SIZE,
+        after: after ?? null,
+      },
+    }),
+  });
 
-  const relayState = JSON.parse(match[1]);
-  const targetChannelRef = channelRef(STANDFM_CHANNEL_ID);
-  const episodes = Object.values(relayState)
-    .filter(
-      (value) =>
-        value.__typename === "Episode" &&
-        value.episodeId &&
-        value.title &&
-        typeof value.publishedAt === "number" &&
-        value.channel?.__ref === targetChannelRef,
-    )
-    .sort((a, b) => b.publishedAt - a.publishedAt);
+  if (!response.ok) {
+    throw new Error(`stand.fm GraphQL request failed: ${response.status}`);
+  }
 
-  const seen = new Set();
-  return episodes
-    .filter((episode) => {
-      if (seen.has(episode.episodeId)) return false;
-      seen.add(episode.episodeId);
-      return true;
-    })
-    .slice(0, limit)
-    .map((episode) => ({
-      episodeId: episode.episodeId,
-      title: episode.title,
-      publishedAt: episode.publishedAt,
-    }));
+  const json = await response.json();
+  const episodes = json?.data?.node?.episodes;
+  if (!episodes) {
+    throw new Error(`Unexpected stand.fm GraphQL response: ${JSON.stringify(json)}`);
+  }
+
+  return episodes;
+}
+
+async function fetchAllEpisodes(limit) {
+  const episodes = [];
+  let after;
+
+  while (episodes.length < limit) {
+    const page = await fetchEpisodesPage(after);
+    for (const edge of page.edges) {
+      episodes.push({
+        episodeId: edge.node.episodeId,
+        title: edge.node.title,
+        publishedAt: edge.node.publishedAt,
+      });
+    }
+
+    if (!page.pageInfo.hasNextPage) break;
+    after = page.pageInfo.endCursor;
+  }
+
+  return episodes.slice(0, limit);
 }
 
 async function fetchHtml(url) {
@@ -185,8 +229,7 @@ async function readExistingRecords() {
 const existingRecords = await readExistingRecords();
 const existingUrls = new Set(existingRecords.map((record) => record.url));
 
-const seedHtml = await fetchHtml(STANDFM_SEED_EPISODE_URL);
-const episodes = parseLatestEpisodes(seedHtml, LIMIT);
+const episodes = await fetchAllEpisodes(LIMIT);
 
 if (episodes.length === 0) {
   throw new Error("No stand.fm episodes found.");

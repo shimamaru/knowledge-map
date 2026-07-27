@@ -36,7 +36,7 @@ function mergeRecords(records: RecordItem[]): RecordItem[] {
 }
 
 export async function getAllRecords(): Promise<RecordItem[]> {
-  const standfmRecords = await getStandfmRecords();
+  const standfmRecords = await getStandfmRecords(Number.POSITIVE_INFINITY);
   return mergeRecords([...standfmRecords, ...topicRecordsToRecordItems()]);
 }
 

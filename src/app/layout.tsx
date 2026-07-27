@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Simu",
   description:
-    "まだ言葉にならないものを、少しずつ形にする。言葉にすることで、自分が楽になる。その記録が、誰かの手がかりにもなる。そんなサイトを目指しています。",
+    "書いたメモが、埋もれずに使える場所へ。Obsidianは難しいツールだと思われがちだけど、はじめは分類もタグ付けもしなくていい。初心者が迷わず始められる使い方を記録しています。",
 };
 
 export default function RootLayout({
